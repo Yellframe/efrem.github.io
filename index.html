@@ -1,20 +1,85 @@
-/* Основные стили */
-body {
-  font-family: 'Georgia', serif;
-  color: #555555;
-  background: white;
-  margin: 0;
-  padding: 20px;
-  line-height: 1.6;
-}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ефрем Лялин | Композитор, Саунд-дизайнер</title>
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Языковой переключатель -->
+    <div class="lang-switcher">
+        <a href="index.html" title="Русский"><img src="assets/img/ru-flag.svg" alt="RU"></a>
+        <a href="en.html" title="English"><img src="assets/img/uk-flag.svg" alt="EN"></a>
+    </div>
 
-.header {
-  text-align: center;
-  margin: 40px 0;
-}
+    <!-- Шапка -->
+    <header class="header">
+        <h1>Ефрем Лялин</h1>
+        <p>Композитор, саунд-дизайнер, звукорежиссер, колорист, режиссер монтажа</p>
+    </header>
 
-.header h1 {
-  font-size: 1.75rem; /* ~28px */
-  font-weight: 600;
-  margin-bottom: 10px;
-}
+    <!-- Основной контент -->
+    <main class="content-grid">
+        <!-- Левая колонка - Музыка -->
+        <section class="music-column">
+            <h2>Список музыкальных композиций</h2>
+            <div class="tracks-list">
+                <!-- Трек 1 -->
+                <div class="track-item">
+                    <div class="track-header">
+                        <span class="track-title">Название исполнителя - Название трека</span>
+                    </div>
+                    <div class="audio-player">
+                        <audio src="assets/audio/track1.mp3"></audio>
+                        <button class="play-btn">▶</button>
+                        <div class="progress-container">
+                            <div class="progress-bar"></div>
+                        </div>
+                    </div>
+                    <p class="track-description">Описание композиции...</p>
+                </div>
+                <!-- Другие треки -->
+            </div>
+        </section>
+
+        <!-- Правая колонка - Видео -->
+        <section class="video-column">
+            <h2>Список видео клипов</h2>
+            <div class="videos-list">
+                <!-- Видео 1 -->
+                <div class="video-item">
+                    <iframe 
+                        data-src="https://player.vimeo.com/video/VIDEO_ID" 
+                        frameborder="0"
+                        allow="autoplay; fullscreen"
+                        loading="lazy">
+                    </iframe>
+                    <p class="video-description">Описание видео...</p>
+                </div>
+                <!-- Другие видео -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Контакты -->
+    <footer class="footer">
+        <div class="contacts">
+            <h2>Для связи:</h2>
+            <p>Telegram: <a href="https://t.me/yefraym">@yefraym</a> (отвечаю быстро)</p>
+            <p>E-mail: <a href="mailto:yfro@proton.me">yfro@proton.me</a> (отвечаю медленно)</p>
+        </div>
+        
+        <div class="copyright">
+            <p>© 2025 Ефрем Лялин. Все права защищены.</p>
+            <a href="#" class="home-btn">Наверх</a>
+        </div>
+    </footer>
+
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/players.js"></script>
+</body>
+</html>
