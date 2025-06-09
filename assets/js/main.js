@@ -20,3 +20,16 @@ body {
 }
 
 /* Добавьте остальные стили сюда */
+* Стили для аудиоплеера */
+audio {
+  width: 100%;
+  margin: 10px 0;
+}
+
+/* Стили для блока с треком */
+.track-item {
+  margin-bottom: 30px;
+  padding: 15px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+}
