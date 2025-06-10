@@ -21,7 +21,7 @@ body {
 
 /* Стили для языкового переключателя */
 .lang-switcher {
-    position: absolute;
+    position: right;
     top: 15px;
     right: 15px;
     display: flex;
@@ -29,7 +29,7 @@ body {
 }
 
 .lang-switcher img {
-    width: 20px;
+    width: 35px;
     height: auto;
     opacity: 0.7;
     transition: opacity 0.2s;
@@ -40,7 +40,7 @@ body {
 }
 
 .header {
-    position:  right; /* Это нужно для правильного позиционирования переключателя */
+    position:  relative; /* Это нужно для правильного позиционирования переключателя */
     padding-top: 10px; /* Добавляем отступ сверху */
 }
  
