@@ -12,12 +12,12 @@ window.addEventListener('load', function() {
 
     // Устанавливаем размер canvas на весь экран
     // и следим за изменением размера окна
-    function resizeCanvas() {
+    function resizeCanvas(1) {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
     }
     window.addEventListener('resize', resizeCanvas, false);
-    resizeCanvas(); // Устанавливаем размер сразу
+    resizeCanvas(1); // Устанавливаем размер сразу
 
     // --- СЮДА ВСТАВЛЯЕТСЯ КОД ШЕЙДЕРА С SHADERTOY ---
     // Я взял для примера простой и красивый шейдер "Star Nest"
