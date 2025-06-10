@@ -55,7 +55,7 @@ class ShaderBackground {
       void main() {
         mainImage(gl_FragColor, gl_FragCoord.xy);
       }
-    `;
+    
 
     // Компиляция шейдеров
     const vertexShader = this.gl.createShader(this.gl.VERTEX_SHADER);
