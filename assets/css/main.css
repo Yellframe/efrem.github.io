@@ -122,6 +122,21 @@ body {
         grid-template-columns: 1fr;
     }
 }
+/* Shaders */
+
+body {
+  background: transparent;
+  position: relative;
+}
+
+.content {
+  position: relative;  /* Позволяет элементам внутри позиционироваться относительно этого блока */
+  z-index: 1;         /* "Поднимает" контент над фоном */
+  background: rgba(255, 255, 255, 0.9);  /* Белый фон с прозрачностью 90% */
+  padding: 20px;      /* Отступы внутри блока */
+  border-radius: 8px;  /* Закругленные углы */
+  margin: 20px;       /* Отступы от краев окна */
+}
 
 /* Оформление контактов */
 .contacts {
