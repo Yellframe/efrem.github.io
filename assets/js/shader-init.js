@@ -1,138 +1,109 @@
-// Ждем, пока вся страница загрузится
+// Ждем, пока вся страница загрузится, чтобы все элементы были на месте
 window.addEventListener('load', function() {
-    // Находим наш <canvas> элемент
+    // Находим наш <canvas> элемент по его ID
     var canvas = document.getElementById('shader-canvas');
+    
+    // Если элемент не найден, выводим ошибку в консоль и прекращаем работу
     if (!canvas) {
-        console.error("Canvas element not found!");
+        console.error("Элемент <canvas> с ID 'shader-canvas' не найден! Проверьте index.html");
         return;
     }
 
-    // Инициализируем библиотеку glsl-canvas
+    // Инициализируем библиотеку glsl-canvas на нашем элементе
     var sandbox = new GlslCanvas(canvas);
 
-    // Устанавливаем размер canvas на весь экран
-    // и следим за изменением размера окна
-    function resizeCanvas(1) {
+    // Эта функция отвечает за установку размера canvas
+    function resizeCanvas() {
+        // Устанавливаем ширину canvas равной текущей ширине окна браузера
         canvas.width = window.innerWidth;
+        // Устанавливаем высоту canvas равной текущей высоте окна браузера
         canvas.height = window.innerHeight;
+        // Важно: сообщаем glsl-canvas, что размер изменился, чтобы он перерисовал шейдер корректно
+        sandbox.setUniform('u_resolution', canvas.width, canvas.height);
     }
+    
+    // Добавляем "слушателя" события: как только размер окна изменится,
+    // будет вызвана функция resizeCanvas, и фон адаптируется.
     window.addEventListener('resize', resizeCanvas, false);
-    resizeCanvas(1); // Устанавливаем размер сразу
+    
+    // Вызываем функцию один раз при загрузке, чтобы установить начальный размер
+    resizeCanvas();
 
-    // --- СЮДА ВСТАВЛЯЕТСЯ КОД ШЕЙДЕРА С SHADERTOY ---
-    // Я взял для примера простой и красивый шейдер "Star Nest"
-    // Вы можете заменить его на любой другой
+    // --- КОД ВАШЕГО ШЕЙДЕРА ---
+    // Вы можете вставить сюда любой код с сайта Shadertoy.
+    // Я оставил тот, что был у вас (Star Nest).
     const shaderCode = `
-// Created by Stephane Cuillerdier - Aiekick/2015
-// License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
-// Tuned via XShade (http://www.funparadigm.com/xshade/)
+#ifdef GL_ES
+precision mediump float;
+#endif
 
-/* 
-	variation more cloudy off Another Cloudy Tunnel : 
-		https://www.shadertoy.com/view/4lSXRK
+// Атрибуты, которые glsl-canvas передает в шейдер автоматически:
+// u_time - время в секундах, прошедшее с начала анимации
+// u_resolution - разрешение canvas (например, 1920.0, 1080.0)
+// u_mouse - координаты мыши (x, y)
+uniform float u_time;
+uniform vec2 u_resolution;
+uniform vec2 u_mouse;
 
-	the cloudy famous tech come from the shader of duke : https://www.shadertoy.com/view/MljXDw
-        Himself a Port of a demo by Las => http://www.pouet.net/topic.php?which=7920&page=29&x=14&y=9
-*/
+// Настройки для шейдера "Star Nest"
+const int iterations = 17;
+const float formuparam = 0.53;
+const int volsteps = 20;
+const float stepsize = 0.1;
+const float zoom = 0.800;
+const float tile = 0.850;
+const float speed = 0.010;
+const float brightness = 0.0015;
+const float darkmatter = 0.300;
+const float distfading = 0.730;
+const float saturation = 0.850;
 
-float t;
+void main() {
+    // Преобразуем координаты пикселя в систему от -0.5 до 0.5
+    vec2 uv = gl_FragCoord.xy / u_resolution.xy - 0.5;
+    uv.y *= u_resolution.y / u_resolution.x; // Компенсация соотношения сторон
+    vec3 dir = vec3(uv * zoom, 1.);
+    float time = u_time * speed + 0.25;
 
-float cosPath(vec3 p, vec3 dec){return dec.x * cos(p.z * dec.y + dec.z);}
-float sinPath(vec3 p, vec3 dec){return dec.x * sin(p.z * dec.y + dec.z);}
-
-vec2 getCylinder(vec3 p, vec2 pos, float r, vec3 c, vec3 s)
-{
-	return p.xy - pos - vec2(cosPath(p, c), sinPath(p, s));
-}
-
-/////////////////////////
-// FROM Shader Cloudy spikeball from duke : https://www.shadertoy.com/view/MljXDw
-float pn( in vec3 x )
-{
-    vec3 p = floor(x);
-    vec3 f = fract(x);
-	f = f*f*(3.0-2.0*f);
-	vec2 uv = (p.xy+vec2(37.0,17.0)*p.z) + f.xy;
-	vec2 rg = textureLod(iChannel0, (uv + 0.5)/256.0, -100.0 ).yx;
-	return -1.0+2.4*mix( rg.x, rg.y, f.z );
-}
-
-float fpn(vec3 p) 
-{
-    p += t*5.;
-	return pn(p*0.02)*1.98 + pn(p*0.02)*0.62 + pn(p*0.09)*0.39;
-}
-/////////////////////////
-
-float map(vec3 p)
-{
-	float pnNoise = fpn(p*13.)*.8;
-	float path = sinPath(p ,vec3(6.2, .33, 0.));
-	float bottom = p.y + pnNoise;
-	float cyl = 0.;vec2 vecOld;
-	for (float i=0.;i<6.;i++)
-	{
-		float x = 1. * i;
-		float y	= .88 + 0.0102*i;
-		float z	 = -0.02 -0.16*i;
-		float r = 4.4 + 2.45 * i;
-		vec2 vec = getCylinder(p, vec2(path, 3.7 * i), r , vec3(x,y,z), vec3(z,x,y));
-		cyl = r - min(length(vec), length(vecOld));
-		vecOld = vec;	
-	}
-	cyl += pnNoise;
-	cyl = min(cyl, bottom);
-	return cyl;
-}
-
-vec3 cam(vec2 uv, vec3 ro, vec3 cu, vec3 cv)
-{
-	vec3 rov = normalize(cv-ro);
-    vec3 u =  normalize(cross(cu, rov));
-    vec3 v =  normalize(cross(rov, u));
-	float fov = 3.;
-    vec3 rd = normalize(rov + fov*u*uv.x + fov*v*uv.y);
-    return rd;
-}
-
-void mainImage( out vec4 f, in vec2 g )
-{
-    t = iTime*2.5;
-	f = vec4(0,0.15,0.32,1);
-	vec2 si = iResolution.xy;
-	vec2 uv = (2.*g-si)/min(si.x, si.y);
-    vec3 ro = vec3(0), p=ro;
-	ro.y = sin(t*.2)*15.+15.;
-	ro.x = sin(t*.5)*5.;
-	ro.z = t*5.;
-	vec3 rd = cam(uv, p, vec3(0,1,0), p + vec3(0,0,1));
-	float s = 1., h = .15, td = 0., d=1.,dd=0., w;
-    float var = 0.03;
-    if (iMouse.z>0.) var = 0.1*iMouse.y/iResolution.y;
-    for(float i=0.;i<200.;i++)
-	{      
-		if(s<0.01||d>500.||td>.95) break;
-        s = map(p) * (s>0.001?var:.2);
-		if (s < h)
-		{
-			w = (1.-td) * (h-s)*i/200.;
-			f += w;
-			td += w;
-		}
-		dd += 0.012;
-		td += 0.005;
-		s = max(s, 0.05);
-		d+=s;	
-		p = ro+rd*d;	
-   	}
-	f.rgb = mix( f.rgb, vec3(0,0.15,0.52), 1.0 - exp( -0.001*d*d) )/dd; // fog
-	
-	// vigneting from iq Shader Mike : https://www.shadertoy.com/view/MsXGWr
-    vec2 q = g/si;
-    f.rgb *= 0.5 + 0.5*pow( 16.0*q.x*q.y*(1.0-q.x)*(1.0-q.y), 0.25 );
+    // Вращение в зависимости от положения мыши
+    float a1 = 0.5 + u_mouse.x / u_resolution.x * 2.;
+    float a2 = 0.8 + u_mouse.y / u_resolution.y * 2.;
+    mat2 rot1 = mat2(cos(a1), sin(a1), -sin(a1), cos(a1));
+    mat2 rot2 = mat2(cos(a2), sin(a2), -sin(a2), cos(a2));
+    dir.xz *= rot1;
+    dir.xy *= rot2;
+    
+    // Движение камеры
+    vec3 from = vec3(1., 0.5, 0.5);
+    from += vec3(time * 2., time, -2.);
+    from.xz *= rot1;
+    from.xy *= rot2;
+    
+    // Рендеринг туманности
+    float s = 0.1, fade = 1.;
+    vec3 v = vec3(0.);
+    for (int r = 0; r < volsteps; r++) {
+        vec3 p = from + s * dir * 0.5;
+        p = abs(vec3(tile) - mod(p, vec3(tile * 2.))); // Тайлинг
+        float pa, a = pa = 0.;
+        for (int i = 0; i < iterations; i++) { // Фрактальная часть
+            p = abs(p) / dot(p, p) - formuparam;
+            a += abs(length(p) - pa);
+            pa = length(p);
+        }
+        float dm = max(0., darkmatter - a * a * 0.001);
+        a *= a * a;
+        if (r > 6) fade *= 1. - dm;
+        v += fade;
+        v += vec3(s, s * s, s * s * s * s) * a * brightness * fade;
+        fade *= distfading;
+        s += stepsize;
+    }
+    v = mix(vec3(length(v)), v, saturation); // Насыщенность
+    gl_FragColor = vec4(v * 0.01, 1.); // Итоговый цвет пикселя
 }
     `;
 
-    // Загружаем код шейдера в наш canvas
+    // Загружаем и компилируем код шейдера
     sandbox.load(shaderCode);
 });
