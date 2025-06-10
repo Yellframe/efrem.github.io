@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-   <meta charset="UTF-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ефрем Лялин | Композитор, Саунд-дизайнер</title>
     <link rel="stylesheet" href="assets/css/main.css">
@@ -11,17 +11,19 @@
 </head>
 <body>
 
+<!-- Холст для шейдера. Он должен быть одним из первых элементов в body -->
 <canvas id="shader-canvas"></canvas>
 
+<!-- Основной блок с контентом сайта -->
 <div class="content">
-  <header class="header">
-    <div class="lang-switcher">
-        <a href="index.html" title="Русский"><img src="assets/img/ru-flag.svg" alt="RU" width="20"></a>
-        <a href="en.html" title="English"><img src="assets/img/uk-flag.svg" alt="EN" width="20"></a>
-    </div>
-    <h1>Ефрем Лялин</h1>
-    <p>Композитор, саунд-дизайнер, звукорежиссер, колорист, режиссер монтажа</p>
-</header>
+    <header class="header">
+        <div class="lang-switcher">
+            <a href="index.html" title="Русский"><img src="assets/img/ru-flag.svg" alt="RU"></a>
+            <a href="en.html" title="English"><img src="assets/img/uk-flag.svg" alt="EN"></a>
+        </div>
+        <h1>Ефрем Лялин</h1>
+        <p>Композитор, саунд-дизайнер, звукорежиссер, колорист, режиссер монтажа</p>
+    </header>
 
     <!-- Основной контент -->
     <main class="content-grid">
@@ -37,19 +39,19 @@
                     <div class="audio-player">
                         <audio src="assets/audio/RUSALKA master 3.mp3"></audio>
                         <div class="controls">
-                         <button class="play-btn">▶</button>
-                         <div class="progress-container">
-                            <input type="range" class="progress" value="0" step="0.01">
+                            <button class="play-btn">▶</button>
+                            <div class="progress-container">
+                                <input type="range" class="progress" value="0" step="0.01">
+                            </div>
+                            <input type="range" class="volume" min="0" max="1" value="0.7" step="0.01">
+                            <span class="time">0:00 / 0:00</span>
                         </div>
-                        <input type="range" class="volume" min="0" max="1" value="0.7" step="0.01">
-                         <span class="time">0:00 / 0:00</span>
                     </div>
-                    <p class="track-description">Тяжесть подводной жизни
-                    </p>Жанры: русский рок, нео-фолк
-                    </p>
+                    <p class="track-description">Тяжесть подводной жизни</p>
+                    <p>Жанры: русский рок, нео-фолк</p>
                 </div>
-                <!-- Трек 1 -->
-             
+                
+                <!-- Трек 2 -->
                 <div class="track-item">
                     <div class="track-header">
                         <span class="track-title">Eraunica - pomnish</span>
@@ -57,19 +59,17 @@
                     <div class="audio-player">
                         <audio src="assets/audio/p3.3 master.mp3"></audio>
                         <div class="controls">
-                         <button class="play-btn">▶</button>
-                         <div class="progress-container">
-                            <input type="range" class="progress" value="0" step="0.01">
-                        </div>
-                        <input type="range" class="volume" min="0" max="1" value="0.7" step="0.01">
-                         <span class="time">0:00 / 0:00</span>
+                            <button class="play-btn">▶</button>
+                            <div class="progress-container">
+                                <input type="range" class="progress" value="0" step="0.01">
+                            </div>
+                            <input type="range" class="volume" min="0" max="1" value="0.7" step="0.01">
+                            <span class="time">0:00 / 0:00</span>
                         </div>
                     </div>
-                    <p class="track-description">Навеяная поп-музыкой 10-х годов, переосмысленная работа
-
-                    </p>Пост-продакшн, сведение и мастеринг. Жанры: Арт-поп, пост-рейв</p>
+                    <p class="track-description">Навеяная поп-музыкой 10-х годов, переосмысленная работа</p>
+                    <p>Пост-продакшн, сведение и мастеринг. Жанры: Арт-поп, пост-рейв</p>
                 </div>
-                <!-- Другие треки -->
             </div>
         </section>
 
@@ -87,7 +87,6 @@
                     </iframe>
                     <p class="video-description">Описание видео...</p>
                 </div>
-                <!-- Другие видео -->
             </div>
         </section>
     </main>
@@ -105,10 +104,14 @@
             <a href="#" class="home-btn">Наверх</a>
         </div>
     </footer>
-</div> <script type="text/javascript" src="https://unpkg.com/glsl-canvas-js@0.2.6/dist/glsl-canvas.min.js"></script>
+</div> <!-- Конец блока .content -->
 
+<!-- ПРАВИЛЬНОЕ МЕСТО ДЛЯ ВСЕХ СКРИПТОВ -->
+<!-- Они должны быть в конце body, чтобы страница сначала загрузилась, а потом выполнился код -->
+<script type="text/javascript" src="https://unpkg.com/glsl-canvas-js@0.2.6/dist/glsl-canvas.min.js"></script>
 <script src="assets/js/players.js"></script>
 <script src="assets/js/main.js"></script> 
-
 <script src="assets/js/shader-init.js"></script>
 
+</body>
+</html>
