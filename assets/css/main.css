@@ -40,10 +40,20 @@ body {
 }
 
 .header {
-    position:  absolute; /* Это нужно для правильного позиционирования переключателя */
+    position:  relative; /* Это нужно для правильного позиционирования переключателя */
     padding-top: 10px; /* Добавляем отступ сверху */
 }
  
+/* Закругленные флаги */
+.lang-switcher img {
+    border-radius: 3px;
+}
+
+/* Эффект при клике */
+.lang-switcher img:active {
+    transform: scale(0.95);
+}
+
 /* Стили для аудиоплеера */
 audio {
   width: 100%;
