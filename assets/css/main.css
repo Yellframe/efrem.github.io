@@ -2,15 +2,39 @@
 body {
   font-family: 'Georgia', serif;
   color: #555555;
-  background: white;
   margin: 0;
-  padding: 20px;
+  padding: 0; /* Убираем отступы у body, они будут у .content */
   line-height: 1.6;
+  background: #000; /* Черный фон на случай, если шейдер не загрузится */
+  position: relative;
+}
+
+/* Контейнер для шейдера */
+#shader-canvas {
+    position: fixed; /* Фиксируем на весь экран */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* Помещаем за всем контентом */
+}
+
+/* Основной контент поверх шейдера */
+.content {
+  position: relative;
+  z-index: 1; /* "Поднимает" контент над фоном */
+  background: rgba(255, 255, 255, 0.85); /* Белый фон с прозрачностью 85% */
+  padding: 20px;
+  border-radius: 8px;
+  margin: 20px; /* Отступы от краев окна */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .header {
   text-align: center;
-  margin: 60px 0;
+  margin: 40px 0; /* Уменьшил отступ */
+  position: relative; /* Это нужно для правильного позиционирования переключателя */
+  padding-top: 10px;
 }
 
 .header h1 {
@@ -21,86 +45,27 @@ body {
 
 /* Стили для языкового переключателя */
 .lang-switcher {
-    position: absolute;
-    top: 15px;
-    right: 45px;
-    display: flex;
-    gap: 8px;
+  position: absolute;
+  top: 15px;
+  right: 25px; /* Сделал отступ поменьше */
+  display: flex;
+  gap: 8px;
 }
 
 .lang-switcher img {
-    width: 35px;
-    height: auto;
-    opacity: 0.7;
-    transition: opacity 0.2s;
+  width: 35px;
+  height: auto;
+  opacity: 0.7;
+  transition: opacity 0.2s, transform 0.2s;
+  border-radius: 3px;
 }
 
 .lang-switcher img:hover {
-    opacity: 1;
+  opacity: 1;
 }
 
-.header {
-    position:  relative; /* Это нужно для правильного позиционирования переключателя */
-    padding-top: 10px; /* Добавляем отступ сверху */
-}
- 
-/* Закругленные флаги */
-.lang-switcher img {
-    border-radius: 3px;
-}
-
-/* Эффект при клике */
 .lang-switcher img:active {
-    transform: scale(0.95);
-}
-
-/* Стили для аудиоплеера */
-.audio-player {
-    width: 100%;
-    margin: 15px 0;
-}
-
-.controls {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.play-btn {
-    background: none;
-    border: none;
-    font-size: 16px;
-    cursor: pointer;
-    padding: 5px 10px;
-}
-
-.progress-container {
-    flex-grow: 1;
-}
-
-.progress, .volume {
-    width: 100%;
-    height: 5px;
-    cursor: pointer;
-}
-
-.volume {
-    width: 80px;
-}
-
-.time {
-    font-size: 12px;
-    color: #666;
-    min-width: 80px;
-    text-align: center;
-}
-
-/* Стили для блока с треком */
-.track-item {
-  margin-bottom: 30px;
-  padding: 15px;
-  border: 1px solid #eee;
-  border-radius: 8px;
+  transform: scale(0.95);
 }
 
 /* Стили для двухколоночной сетки */
@@ -117,49 +82,106 @@ body {
   border-radius: 8px;
 }
 
-@media screen and (max-width: 768px) {
-    .content-grid {
-        grid-template-columns: 1fr;
-    }
-}
-/* Shaders */
-
-body {
-  background: transparent;
-  position: relative;
+/* Стили для блока с треком */
+.track-item {
+  margin-bottom: 30px;
+  padding: 15px;
+  border: 1px solid #eee;
+  border-radius: 8px;
 }
 
-.content {
-  position: relative;  /* Позволяет элементам внутри позиционироваться относительно этого блока */
-  z-index: 1;         /* "Поднимает" контент над фоном */
-  background: rgba(255, 255, 255, 0.9);  /* Белый фон с прозрачностью 90% */
-  padding: 20px;      /* Отступы внутри блока */
-  border-radius: 8px;  /* Закругленные углы */
-  margin: 20px;       /* Отступы от краев окна */
+/* Стили для аудиоплеера */
+.audio-player {
+  width: 100%;
+  margin: 15px 0;
 }
 
-/* Оформление контактов */
-.contacts {
-    max-width: 600px;
-    margin: auto;
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.play-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 5px 10px;
+}
+
+.progress-container {
+  flex-grow: 1;
+}
+
+.progress, .volume {
+  width: 100%;
+  height: 5px;
+  cursor: pointer;
+}
+
+.volume {
+  width: 80px;
+}
+
+.time {
+  font-size: 12px;
+  color: #666;
+  min-width: 80px;
+  text-align: center;
+}
+
+
+/* Оформление контактов и футера */
+.footer {
     text-align: center;
+    margin-top: 40px;
+}
+
+.contacts {
+  max-width: 600px;
+  margin: auto;
+  text-align: center;
+  margin-bottom: 20px;
 }
 
 .copyright p {
-    font-size: 0.85em;
-    color: #aaa;
+  font-size: 0.85em;
+  color: #aaa;
+  margin: 5px 0;
 }
 
 .home-btn {
-    color: #fff;
-    background-color: #ffc107;
-    padding: 8px 16px;
-    border-radius: 4px;
-    text-decoration: none;
-    font-weight: bold;
-    transition: all 0.2s ease-in-out;
+  color: #fff;
+  background-color: #ffc107;
+  padding: 8px 16px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: all 0.2s ease-in-out;
+  display: inline-block; /* Для правильного отображения */
+  margin-top: 10px;
 }
 
 .home-btn:hover {
-    background-color: #febd0b;
+  background-color: #febd0b;
+}
+
+/* Адаптивность */
+@media screen and (max-width: 768px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+   .content {
+       margin: 10px;
+       padding: 15px;
+   }
+   .lang-switcher {
+       position: static;
+       justify-content: center;
+       margin-bottom: 20px;
+   }
+   .header {
+       margin: 20px 0;
+   }
 }
