@@ -33,75 +33,100 @@ window.addEventListener('load', function() {
     // Вы можете вставить сюда любой код с сайта Shadertoy.
     // Я оставил тот, что был у вас (Star Nest).
     const shaderCode = `
-#ifdef GL_ES
-precision mediump float;
-#endif
+ const mat2 m = mat2( 0.80,  0.60, -0.60,  0.80 );
 
-// Атрибуты, которые glsl-canvas передает в шейдер автоматически:
-// u_time - время в секундах, прошедшее с начала анимации
-// u_resolution - разрешение canvas (например, 1920.0, 1080.0)
-// u_mouse - координаты мыши (x, y)
-uniform float u_time;
-uniform vec2 u_resolution;
-uniform vec2 u_mouse;
-
-// Настройки для шейдера "Star Nest"
-const int iterations = 17;
-const float formuparam = 0.53;
-const int volsteps = 20;
-const float stepsize = 0.1;
-const float zoom = 16.160;
-const float tile = 0.850;
-const float speed = 0.010;
-const float brightness = 0.0015;
-const float darkmatter = 0.600;
-const float distfading = 0.730;
-const float saturation = 0.850;
-
-void main() {
-    // Преобразуем координаты пикселя в систему от -0.5 до 0.5
-    vec2 uv = gl_FragCoord.xy / u_resolution.xy - 0.5;
-    uv.y *= u_resolution.y / u_resolution.x; // Компенсация соотношения сторон
-    vec3 dir = vec3(uv * zoom, 1.);
-    float time = u_time * speed + 0.25;
-
-    // Вращение в зависимости от положения мыши
-    float a1 = 0.1 + u_mouse.x / u_resolution.x * 2.3.;
-    float a2 = 0.1 + u_mouse.y / u_resolution.y * 2.3.;
-    mat2 rot1 = mat2(cos(a1), sin(a1), -sin(a1), cos(a1));
-    mat2 rot2 = mat2(cos(a2), sin(a2), -sin(a2), cos(a2));
-    dir.xz *= rot1;
-    dir.xy *= rot2;
-    
-    // Движение камеры
-    vec3 from = vec3(1., 0.5, 0.5);
-    from += vec3(time * 2., time, -2.);
-    from.xz *= rot1;
-    from.xy *= rot2;
-    
-    // Рендеринг туманности
-    float s = 0.1, fade = 1.;
-    vec3 v = vec3(0.);
-    for (int r = 0; r < volsteps; r++) {
-        vec3 p = from + s * dir * 0.5;
-        p = abs(vec3(tile) - mod(p, vec3(tile * 2.))); // Тайлинг
-        float pa, a = pa = 0.;
-        for (int i = 0; i < iterations; i++) { // Фрактальная часть
-            p = abs(p) / dot(p, p) - formuparam;
-            a += abs(length(p) - pa);
-            pa = length(p);
-        }
-        float dm = max(0., darkmatter - a * a * 0.001);
-        a *= a * a;
-        if (r > 6) fade *= 1. - dm;
-        v += fade;
-        v += vec3(s, s * s, s * s * s * s) * a * brightness * fade;
-        fade *= distfading;
-        s += stepsize;
+    float noise( in vec2 p )
+    {
+      return sin(p.x)*sin(p.y);
     }
-    v = mix(vec3(length(v)), v, saturation); // Насыщенность
-    gl_FragColor = vec4(v * 0.01, 1.); // Итоговый цвет пикселя
-}
+
+    float fbm4( vec2 p )
+    {
+        float f = 0.0;
+        f += 0.5000*noise( p ); p = m*p*2.02;
+        f += 0.2500*noise( p ); p = m*p*2.03;
+        f += 0.1250*noise( p ); p = m*p*2.01;
+        f += 0.0625*noise( p );
+        return f/0.9375;
+    }
+
+    float fbm6( vec2 p )
+    {
+        float f = 0.0;
+        f += 0.500000*(0.5+0.5*noise( p )); p = m*p*2.02;
+        f += 0.250000*(0.5+0.5*noise( p )); p = m*p*2.03;
+        f += 0.125000*(0.5+0.5*noise( p )); p = m*p*2.01;
+        f += 0.062500*(0.5+0.5*noise( p )); p = m*p*2.04;
+        f += 0.031250*(0.5+0.5*noise( p )); p = m*p*2.01;
+        f += 0.015625*(0.5+0.5*noise( p ));
+        return f/0.96875;
+    }
+
+    vec2 fbm4_2( vec2 p )
+    {
+        return vec2(fbm4(p), fbm4(p+vec2(7.8)));
+    }
+
+    vec2 fbm6_2( vec2 p )
+    {
+        return vec2(fbm6(p+vec2(16.8)), fbm6(p+vec2(11.5)));
+    }
+
+    //====================================================================
+
+    float func( vec2 q, out vec4 ron )
+    {
+        q += 0.03*sin( vec2(0.27,0.23)*iTime + length(q)*vec2(4.1,4.3));
+
+      vec2 o = fbm4_2( 0.9*q );
+
+        o += 0.04*sin( vec2(0.12,0.14)*iTime + length(o));
+
+        vec2 n = fbm6_2( 3.0*o );
+
+      ron = vec4( o, n );
+
+        float f = 0.5 + 0.5*fbm4( 1.8*q + 6.0*n );
+
+        return mix( f, f*f*f*3.5, f*abs(n.x) );
+    }
+
+    void mainImage( out vec4 fragColor, in vec2 fragCoord )
+    {
+        vec2 p = (2.0*fragCoord-iResolution.xy)/iResolution.y;
+        float e = 2.0/iResolution.y;
+
+        vec4 on = vec4(0.0);
+        float f = func(p, on);
+
+      vec3 col = vec3(0.0);
+        col = mix( vec3(0.2,0.1,0.4), vec3(0.3,0.05,0.05), f );
+        col = mix( col, vec3(0.9,0.9,0.9), dot(on.zw,on.zw) );
+        col = mix( col, vec3(0.4,0.3,0.3), 0.2 + 0.5*on.y*on.y );
+        col = mix( col, vec3(0.0,0.2,0.4), 0.5*smoothstep(1.2,1.3,abs(on.z)+abs(on.w)) );
+        col = clamp( col*f*2.0, 0.0, 1.0 );
+
+    #if 0
+        // gpu derivatives - bad quality, but fast
+      vec3 nor = normalize( vec3( dFdx(f)*iResolution.x, 6.0, dFdy(f)*iResolution.y ) );
+    #else
+        // manual derivatives - better quality, but slower
+        vec4 kk;
+      vec3 nor = normalize( vec3( func(p+vec2(e,0.0),kk)-f,
+                                    2.0*e,
+                                    func(p+vec2(0.0,e),kk)-f ) );
+    #endif
+
+        vec3 lig = normalize( vec3( 0.9, 0.2, -0.4 ) );
+        float dif = clamp( 0.3+0.7*dot( nor, lig ), 0.0, 1.0 );
+        vec3 lin = vec3(0.70,0.90,0.95)*(nor.y*0.5+0.5) + vec3(0.15,0.10,0.05)*dif;
+        col *= 1.2*lin;
+      col = 1.0 - col;
+      col = 1.1*col*col;
+
+        fragColor = vec4( col, 1.0 );
+    }
+
     `;
 
     // Загружаем и компилируем код шейдера
