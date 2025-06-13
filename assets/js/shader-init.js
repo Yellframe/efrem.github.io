@@ -50,11 +50,11 @@ const int iterations = 17;
 const float formuparam = 0.53;
 const int volsteps = 20;
 const float stepsize = 0.1;
-const float zoom = 0.200;
+const float zoom = 32.160;
 const float tile = 0.850;
 const float speed = 0.010;
 const float brightness = 0.0015;
-const float darkmatter = 0.300;
+const float darkmatter = 0.600;
 const float distfading = 0.730;
 const float saturation = 0.850;
 
