@@ -50,7 +50,7 @@ const int iterations = 17;
 const float formuparam = 0.53;
 const int volsteps = 20;
 const float stepsize = 0.1;
-const float zoom = 32.160;
+const float zoom = 16.160;
 const float tile = 0.850;
 const float speed = 2.010;
 const float brightness = 0.0015;
@@ -66,8 +66,8 @@ void main() {
     float time = u_time * speed + 0.25;
 
     // Вращение в зависимости от положения мыши
-    float a1 = 0.1 + u_mouse.x / u_resolution.x * 2.;
-    float a2 = 0.1 + u_mouse.y / u_resolution.y * 2.;
+    float a1 = 0.1 + u_mouse.x / u_resolution.x * 5.;
+    float a2 = 0.1 + u_mouse.y / u_resolution.y * 5.;
     mat2 rot1 = mat2(cos(a1), sin(a1), -sin(a1), cos(a1));
     mat2 rot2 = mat2(cos(a2), sin(a2), -sin(a2), cos(a2));
     dir.xz *= rot1;
