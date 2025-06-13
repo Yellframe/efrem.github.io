@@ -66,15 +66,15 @@ void main() {
     float time = u_time * speed + 0.25;
 
     // Вращение в зависимости от положения мыши
-    float a1 = 0.1 + u_mouse.x / u_resolution.x * 4.;
-    float a2 = 0.1 + u_mouse.y / u_resolution.y * 4.;
+    float a1 = 0.1 + u_mouse.x / u_resolution.x * 2.;
+    float a2 = 0.1 + u_mouse.y / u_resolution.y * 2.;
     mat2 rot1 = mat2(cos(a1), sin(a1), -sin(a1), cos(a1));
     mat2 rot2 = mat2(cos(a2), sin(a2), -sin(a2), cos(a2));
     dir.xz *= rot1;
     dir.xy *= rot2;
     
     // Движение камеры
-    vec3 from = vec3(0.5., 0.1, 0.1);
+    vec3 from = vec3(1., 0.5, 0.5);
     from += vec3(time * 2., time, -2.);
     from.xz *= rot1;
     from.xy *= rot2;
