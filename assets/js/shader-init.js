@@ -33,116 +33,75 @@ window.addEventListener('load', function() {
     // Вы можете вставить сюда любой код с сайта Shadertoy.
     // Я оставил тот, что был у вас (Star Nest).
     const shaderCode = `
-#version 320 es
-
-#ifdef GL_FRAGMENT_PRECISION_HIGH
-precision highp float;
-#else
+#ifdef GL_ES
 precision mediump float;
 #endif
 
-uniform vec2 resolution;
-uniform float time;
-uniform vec4 mouse;
-uniform vec4 date;
+// Атрибуты, которые glsl-canvas передает в шейдер автоматически:
+// u_time - время в секундах, прошедшее с начала анимации
+// u_resolution - разрешение canvas (например, 1920.0, 1080.0)
+// u_mouse - координаты мыши (x, y)
+uniform float u_time;
+uniform vec2 u_resolution;
+uniform vec2 u_mouse;
 
-#define iTime time
-
-#define A 9. // amplitude
-#define T (iTime/3e2)
-#define H(a) (cos(radians(vec3(180, 90, 0))+(a)*6.2832)*.5+.5)  // hue
-
-float map(vec3 u, float v)  // sdf
-{
-    float t = T,     // speed
-          l = 5.,    // loop to reduce clipping
-          f = 1e10, i = 0., y, z;
-
-    u.xy = vec2(atan(u.x, u.y), length(u.xy));  // polar transform
-    u.x += t*v*3.1416*.7;  // counter rotation
-
-    for (; i++<l;)
-    {
-        vec3 p = u;
-        y = round((p.y-i)/l)*l+i;
-        p.x *= y;
-        p.x -= y*y*t*3.1416;
-        p.x -= round(p.x/6.2832)*6.2832;
-        p.y -= y;
-        z = cos(y*t*6.2832)*.5+.5;  // z wave
-        f = min(f, max(length(p.xy), -p.z-z*A) -.1 -z*.2 -p.z/1e2);  // tubes
-    }
-    return f;
-}
-
-void mainImage( out vec4 C, vec2 U )
-{
-    vec2 R = resolution.xy, j,
-         m = (mouse.xy - R/2.)/R.y;
-
-    if (mouse.z < 1. && mouse.x+mouse.y < 10.) m = vec2(0, .5);
-
-    vec3 o = vec3(0, 0, -130.),  // camera
-         u = normalize(vec3(U - R/2., R.y)),  // 3d coords
-         c = vec3(0),
-         p, k;
-
-    float t = T,
-          v = -o.z/3.,  // pattern scale
-          i = 0., d = i,
-          s, f, z, r;
-
-    bool b;
-
-    for (; i++<70.;)  // raymarch
-    {
-        p = u*d + o;
-        p.xy /= v;           // scale down
-        r = length(p.xy);    // radius
-        z = abs(1.-r*r);     // z warp
-        b = r < 1.;          // inside?
-        if (b) z = sqrt(z);
-        p.xy /= z+1.;        // spherize
-        p.xy -= m;           // move with mouse
-        p.xy *= v;           // scale back up
-        p.xy -= cos(p.z/8. +t*3e2 +vec2(0, 1.5708) +z/2.)*.2;  // wave along z
-
-        s = map(p, v);  // sdf
-
-        r = length(p.xy);                  // new r
-        f = cos(round(r)*t*6.2832)*.5+.5;  // multiples
-        k = H(.2 -f/3. +t +p.z/2e2);       // color
-        if (b) k = 1.-k;                   // flip color
-
-        // this stuff can go outside the raymarch,
-        // but accumulating it here produces softer edges
-        c += min(exp(s/-.05), s)        // shapes
-           * (f+.01)                    // shade pattern
-           * min(z, 1.)                 // darken edges
-           * sqrt(cos(r*6.2832)*.5+.5)  // shade between rows
-           * k*k;                       // color
-
-        if (s < 1e-3 || d > 1e3) break;
-        d += s*clamp(z, .2, .9);  // smaller steps towards sphere edge
-    }
-
-    //c += texture(iChannel0, u*d + o).rrr * vec3(0, .4, s)*s*z*.03;  // wavy aqua
-    c += min(exp(-p.z-f*A)*z*k*.01/s, 1.);  // light tips
-
-    j = p.xy/v+m;  // 2d coords
-    c /= clamp(dot(j, j)*4., .04, 4.);  // brightness
-
-    C = vec4(exp(log(c)/2.2), 1);
-}
-
-out vec4 FragmentColor;
+// Настройки для шейдера "Star Nest"
+const int iterations = 17;
+const float formuparam = 0.53;
+const int volsteps = 20;
+const float stepsize = 0.1;
+const float zoom = 0.800;
+const float tile = 0.850;
+const float speed = 0.010;
+const float brightness = 0.0015;
+const float darkmatter = 0.300;
+const float distfading = 0.730;
+const float saturation = 0.850;
 
 void main() {
- vec4 fragment_color;
- mainImage(fragment_color, gl_FragCoord.xy);
- FragmentColor = fragment_color;
-}
+    // Преобразуем координаты пикселя в систему от -0.5 до 0.5
+    vec2 uv = gl_FragCoord.xy / u_resolution.xy - 0.5;
+    uv.y *= u_resolution.y / u_resolution.x; // Компенсация соотношения сторон
+    vec3 dir = vec3(uv * zoom, 1.);
+    float time = u_time * speed + 0.25;
 
+    // Вращение в зависимости от положения мыши
+    float a1 = 0.5 + u_mouse.x / u_resolution.x * 2.;
+    float a2 = 0.8 + u_mouse.y / u_resolution.y * 2.;
+    mat2 rot1 = mat2(cos(a1), sin(a1), -sin(a1), cos(a1));
+    mat2 rot2 = mat2(cos(a2), sin(a2), -sin(a2), cos(a2));
+    dir.xz *= rot1;
+    dir.xy *= rot2;
+    
+    // Движение камеры
+    vec3 from = vec3(1., 0.5, 0.5);
+    from += vec3(time * 2., time, -2.);
+    from.xz *= rot1;
+    from.xy *= rot2;
+    
+    // Рендеринг туманности
+    float s = 0.1, fade = 1.;
+    vec3 v = vec3(0.);
+    for (int r = 0; r < volsteps; r++) {
+        vec3 p = from + s * dir * 0.5;
+        p = abs(vec3(tile) - mod(p, vec3(tile * 2.))); // Тайлинг
+        float pa, a = pa = 0.;
+        for (int i = 0; i < iterations; i++) { // Фрактальная часть
+            p = abs(p) / dot(p, p) - formuparam;
+            a += abs(length(p) - pa);
+            pa = length(p);
+        }
+        float dm = max(0., darkmatter - a * a * 0.001);
+        a *= a * a;
+        if (r > 6) fade *= 1. - dm;
+        v += fade;
+        v += vec3(s, s * s, s * s * s * s) * a * brightness * fade;
+        fade *= distfading;
+        s += stepsize;
+    }
+    v = mix(vec3(length(v)), v, saturation); // Насыщенность
+    gl_FragColor = vec4(v * 0.01, 1.); // Итоговый цвет пикселя
+}
     `;
 
     // Загружаем и компилируем код шейдера
