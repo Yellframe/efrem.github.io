@@ -1,7 +1,7 @@
 /* Основные стили */
 body {
   font-family: 'Georgia', serif;
-  color: #555555;
+  color: #464545;
   margin: 0;
   padding: 0; /* Убираем отступы у body, они будут у .content */
   line-height: 1.6;
